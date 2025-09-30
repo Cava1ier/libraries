@@ -1,3 +1,32 @@
+/*
+Use a StyleRegistry that
+    constructor takes an app_prefix <str>
+    private setStyle
+    public setStyles(group_name<str>, styles<str>,cssclasses[<str>])// where 
+                           group_name is a group prefix so that class names become  "."+app_prefix+group_name+class name     so that an app with many forms can use submit buttons without feared of overlapping css styles as long as the forms are in different groups
+                           styles string is a semi colon seperatated css prop names 
+                            cssclasses is an array of class name strings to map to cssvalues
+                            css values is a string of comma separated strings that are the same count as cssclasses length and the string has the same number of commas as the styles has semi colons if the style css prop name doesn't apply to the element at the same index put the word null
+
+example of usage is :
+ const styles="background-color;margin;font-family;padding;color;border;border-radius;text-align;display;box-sizing;width;resize";
+  const cssNames=["btnSubmit","btnClear","lblName","txtName","lblAddress","lblPhone","formWrapper","formLabel","formInput","formCenter"];
+  const cssValues=[
+   "#007bff,10px,Arial,12px,white,none,4px,null,null,null,null,null",
+   "#6c757d,10px,Arial,12px,white,none,4px,null,null,null,null,null",
+   "#333333,5px,Arial,8px,#333,none,0,null,block,null,null,null",
+   "white,5px,Arial,8px,#333,1px solid #ccc,4px,null,null,border-box,100%,vertical",
+   "#333333,5px,Arial,8px,#333,none,0,null,block,null,null,null",
+   "#333333,5px,Arial,8px,#333,none,0,null,block,null,null,null",
+   "white,20px auto,Arial,20px,#333,none,8px,center,null,null,600px,null",
+   "null,5px,null,null,null,null,null,null,block,null,null,null",
+   "null,null,null,null,null,null,null,null,null,border-box,100%,null",
+   "null,null,null,null,null,null,null,center,null,null,null,null"
+  ];
+
+
+*/
+
 (function(global){'use strict';
 const StyleRegistryUtil={
  parseStyles(styles){
