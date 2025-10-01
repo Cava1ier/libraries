@@ -1,0 +1,753 @@
+```
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Two-Player Dig Dug</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: monospace;
+      overflow: hidden;
+    }
+    #game-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    canvas {
+      border: 3px solid #333;
+      box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+    }
+    #info {
+      color: #0f0;
+      font-size: 14px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <canvas id="game-canvas"></canvas>
+    <div id="info">Loading...</div>
+  </div>
+
+  <script>
+    (() => {
+      // Single Source of Truth: GameState
+      const GameState = {
+        players: {
+          p1: { 
+            x: 8, y: 8, 
+            dir: 0, 
+            color: '#00ff41', 
+            alive: true, 
+            score: 0,
+            pump: { active: false, target: null, progress: 0 }
+          },
+          p2: { 
+            x: 42, y: 32, 
+            dir: 0, 
+            color: '#ff0080', 
+            alive: true, 
+            score: 0,
+            pump: { active: false, target: null, progress: 0 }
+          }
+        },
+        enemies: [],
+        rocks: [],
+        grid: [],
+        level: 1,
+        gameWidth: 50,
+        gameHeight: 40,
+        cellSize: 16,
+        mouseCenter: { x: 0, y: 0 },
+        keys: {},
+        gameRunning: true,
+        lastSpawn: 0,
+        DIRT: 1,
+        TUNNEL: 0,
+        ROCK: 2
+      };
+
+      // Initialize game
+      function init() {
+        // Initialize grid with dirt
+        GameState.grid = Array.from({ length: GameState.gameHeight }, () => 
+          Array(GameState.gameWidth).fill(GameState.DIRT)
+        );
+        
+        // Create initial spawn areas
+        createTunnel(GameState.players.p1.x, GameState.players.p1.y, 4);
+        createTunnel(GameState.players.p2.x, GameState.players.p2.y, 4);
+
+        startLevel();
+      }
+
+      function startLevel() {
+        // Clear existing enemies and rocks
+        GameState.enemies = [];
+        GameState.rocks = [];
+
+        // Add rocks
+        for (let i = 0; i < 5 + GameState.level; i++) {
+          spawnRock();
+        }
+
+        // Spawn enemies based on level
+        const enemyCount = 4 + GameState.level * 2;
+        for (let i = 0; i < enemyCount; i++) {
+          spawnEnemy();
+        }
+
+        // Increase difficulty
+        GameState.lastSpawn = Date.now();
+      }
+
+      function createTunnel(cx, cy, radius) {
+        for (let y = Math.max(0, cy - radius); y <= Math.min(GameState.gameHeight - 1, cy + radius); y++) {
+          for (let x = Math.max(0, cx - radius); x <= Math.min(GameState.gameWidth - 1, cx + radius); x++) {
+            const dist = Math.sqrt((x - cx) ** 2 + (y - cy) ** 2);
+            if (dist <= radius) {
+              GameState.grid[y][x] = GameState.TUNNEL;
+            }
+          }
+        }
+      }
+
+      function spawnEnemy() {
+        let x, y, attempts = 0;
+        do {
+          x = Math.floor(Math.random() * GameState.gameWidth);
+          y = Math.floor(Math.random() * GameState.gameHeight);
+          attempts++;
+        } while (GameState.grid[y][x] !== GameState.DIRT && attempts < 100);
+
+        if (attempts >= 100) return;
+
+        const enemyType = Math.random() > 0.5 ? 'fygar' : 'pooka';
+        const baseSpeed = enemyType === 'fygar' ? 0.06 : 0.05;
+        GameState.enemies.push({
+          x, y,
+          dir: Math.random() * Math.PI * 2,
+          speed: baseSpeed + (GameState.level - 1) * 0.005, // Increase speed per level
+          alive: true,
+          type: enemyType,
+          inflated: 0,
+          maxInflation: 3,
+          stunned: 0,
+          beingPumped: false,
+          state: 'normal', // normal, ghost, inflated
+          lastDig: 0
+        });
+      }
+
+      function spawnRock() {
+        let x, y, attempts = 0;
+        do {
+          x = Math.floor(Math.random() * GameState.gameWidth);
+          y = Math.floor(Math.random() * (GameState.gameHeight - 10)) + 5;
+          attempts++;
+        } while (GameState.grid[y][x] !== GameState.DIRT && attempts < 100);
+
+        if (attempts >= 100) return;
+
+        GameState.rocks.push({
+          x, y,
+          falling: false,
+          fallSpeed: 0
+        });
+        GameState.grid[y][x] = GameState.ROCK;
+      }
+
+      function digAt(x, y, radius = 1) {
+        let dug = false;
+        for (let dy = -radius; dy <= radius; dy++) {
+          for (let dx = -radius; dx <= radius; dx++) {
+            const gx = Math.floor(x + dx);
+            const gy = Math.floor(y + dy);
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            if (gx >= 0 && gx < GameState.gameWidth && gy >= 0 && gy < GameState.gameHeight && dist <= radius) {
+              if (GameState.grid[gy][gx] === GameState.DIRT) {
+                GameState.grid[gy][gx] = GameState.TUNNEL;
+                dug = true;
+              }
+            }
+          }
+        }
+        return dug;
+      }
+
+      function isInTunnel(x, y) {
+        const gx = Math.floor(x);
+        const gy = Math.floor(y);
+        return gx >= 0 && gx < GameState.gameWidth && gy >= 0 && gy < GameState.gameHeight && 
+               GameState.grid[gy][gx] === GameState.TUNNEL;
+      }
+
+      function canMoveTo(x, y) {
+        const gx = Math.floor(x);
+        const gy = Math.floor(y);
+        if (gx < 0 || gx >= GameState.gameWidth || gy < 0 || gy >= GameState.gameHeight) return false;
+        return GameState.grid[gy][gx] !== GameState.ROCK;
+      }
+
+      // Input handling
+      function setupInput() {
+        document.addEventListener('keydown', e => {
+          GameState.keys[e.key.toLowerCase()] = true;
+          if (['w', 'a', 's', 'd', ' ', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(e.key.toLowerCase())) {
+            e.preventDefault();
+          }
+        });
+        
+        document.addEventListener('keyup', e => {
+          GameState.keys[e.key.toLowerCase()] = false;
+        });
+        
+        const canvas = document.getElementById('game-canvas');
+        canvas.addEventListener('mousemove', e => {
+          const rect = canvas.getBoundingClientRect();
+          const centerX = rect.left + rect.width / 2;
+          const centerY = rect.top + rect.height / 2;
+          GameState.mouseCenter = {
+            x: e.clientX - centerX,
+            y: e.clientY - centerY
+          };
+        });
+
+        canvas.addEventListener('mousedown', e => {
+          GameState.keys['mouse'] = true;
+          e.preventDefault();
+        });
+
+        canvas.addEventListener('mouseup', e => {
+          GameState.keys['mouse'] = false;
+        });
+
+        // Restart on R key
+        document.addEventListener('keydown', e => {
+          if (e.key.toLowerCase() === 'r' && (!GameState.players.p1.alive || !GameState.players.p2.alive)) {
+            resetGame();
+          }
+        });
+      }
+
+      function resetGame() {
+        GameState.players.p1 = { 
+          x: 8, y: 8, dir: 0, color: '#00ff41', alive: true, score: 0,
+          pump: { active: false, target: null, progress: 0 }
+        };
+        GameState.players.p2 = { 
+          x: 42, y: 32, dir: 0, color: '#ff0080', alive: true, score: 0,
+          pump: { active: false, target: null, progress: 0 }
+        };
+        GameState.enemies = [];
+        GameState.rocks = [];
+        GameState.level = 1;
+        GameState.gameRunning = true;
+        init();
+      }
+
+      // Physics
+      function updatePlayer(player, isP1) {
+        if (!player.alive || !GameState.gameRunning) return;
+
+        let dx = 0, dy = 0;
+        let wantsPump = false;
+        const playerSpeed = 0.08 + (GameState.level - 1) * 0.005; // Slowed down, increases slightly per level
+
+        if (isP1) {
+          // Mouse control for P1
+          const { x: mx, y: my } = GameState.mouseCenter;
+          const dist = Math.sqrt(mx * mx + my * my);
+          
+          if (dist > 15) {
+            const angle = Math.atan2(my, mx);
+            player.dir = angle;
+            dx = Math.cos(angle) * playerSpeed;
+            dy = Math.sin(angle) * playerSpeed;
+          }
+          
+          wantsPump = GameState.keys['mouse'];
+        } else {
+          // WASD control for P2
+          const keys = GameState.keys;
+          if (keys['w']) dy = -playerSpeed;
+          if (keys['s']) dy = playerSpeed;
+          if (keys['a']) dx = -playerSpeed;
+          if (keys['d']) dx = playerSpeed;
+          
+          if (dx !== 0 || dy !== 0) {
+            player.dir = Math.atan2(dy, dx);
+          }
+          
+          wantsPump = keys[' '] || keys['shift'];
+        }
+
+        // Handle pump action
+        if (wantsPump && !player.pump.active) {
+          const nearestEnemy = findNearestEnemy(player.x, player.y, 3);
+          if (nearestEnemy && isInTunnel(nearestEnemy.x, nearestEnemy.y)) {
+            player.pump.active = true;
+            player.pump.target = nearestEnemy;
+            player.pump.progress = 0;
+            nearestEnemy.beingPumped = true;
+            nearestEnemy.state = 'inflated';
+          }
+        }
+
+        if (player.pump.active && player.pump.target) {
+          player.pump.progress += 0.02; // Slowed down inflation
+          player.pump.target.inflated = Math.min(player.pump.target.maxInflation, player.pump.progress * player.pump.target.maxInflation);
+          
+          if (player.pump.progress >= 1 || !wantsPump || !player.pump.target.alive) {
+            if (player.pump.progress >= 1 && player.pump.target.alive) {
+              player.pump.target.alive = false;
+              player.score += 300;
+            }
+            player.pump.target.beingPumped = false;
+            player.pump.active = false;
+            player.pump.target = null;
+            player.pump.progress = 0;
+          }
+        }
+
+        // Movement
+        if (!player.pump.active && (dx !== 0 || dy !== 0)) {
+          const newX = player.x + dx;
+          const newY = player.y + dy;
+
+          if (canMoveTo(newX, newY)) {
+            player.x = Math.max(0, Math.min(GameState.gameWidth - 0.5, newX));
+            player.y = Math.max(0, Math.min(GameState.gameHeight - 0.5, newY));
+            
+            if (digAt(player.x, player.y, 0.8)) {
+              player.score += 5;
+            }
+          }
+        }
+      }
+
+      function findNearestEnemy(x, y, maxDist) {
+        let nearest = null;
+        let minDist = maxDist;
+        
+        GameState.enemies.forEach(enemy => {
+          if (!enemy.alive || enemy.beingPumped) return;
+          const dist = Math.sqrt((x - enemy.x) ** 2 + (y - enemy.y) ** 2);
+          if (dist < minDist) {
+            minDist = dist;
+            nearest = enemy;
+          }
+        });
+        
+        return nearest;
+      }
+
+      function updateEnemies() {
+        GameState.enemies.forEach(enemy => {
+          if (!enemy.alive) return;
+
+          if (enemy.stunned > 0) {
+            enemy.stunned--;
+            return;
+          }
+
+          if (enemy.beingPumped || enemy.inflated > 0) {
+            // Don't move if being pumped or deflating
+            if (!enemy.beingPumped) {
+              enemy.inflated = Math.max(0, enemy.inflated - 0.02); // Slowed deflation
+              if (enemy.inflated <= 0) {
+                enemy.state = 'normal';
+              }
+            }
+            return;
+          }
+
+          const inTunnel = isInTunnel(enemy.x, enemy.y);
+          
+          // Ghost state logic (improvement)
+          if (!inTunnel && Math.random() < 0.01 * GameState.level) {
+            enemy.state = 'ghost';
+          } else if (inTunnel && enemy.state === 'ghost' && Math.random() < 0.05) {
+            enemy.state = 'normal';
+          }
+
+          let effectiveSpeed = enemy.speed;
+          if (enemy.state === 'ghost') {
+            effectiveSpeed *= 1.2; // Faster in ghost mode
+          } else if (!inTunnel) {
+            effectiveSpeed *= 0.5; // Slower in dirt
+          }
+
+          if (inTunnel || enemy.state === 'ghost') {
+            // Chase nearest player
+            const p1 = GameState.players.p1;
+            const p2 = GameState.players.p2;
+            const p1Dist = p1.alive ? Math.sqrt((enemy.x - p1.x) ** 2 + (enemy.y - p1.y) ** 2) : Infinity;
+            const p2Dist = p2.alive ? Math.sqrt((enemy.x - p2.x) ** 2 + (enemy.y - p2.y) ** 2) : Infinity;
+            
+            const target = p1Dist < p2Dist ? p1 : p2;
+            if (target.alive) {
+              enemy.dir = Math.atan2(target.y - enemy.y, target.x - enemy.x);
+            }
+          } else {
+            // Random movement in dirt
+            if (Math.random() < 0.02) {
+              enemy.dir = Math.random() * Math.PI * 2;
+            }
+          }
+
+          // Movement
+          const dx = Math.cos(enemy.dir) * effectiveSpeed;
+          const dy = Math.sin(enemy.dir) * effectiveSpeed;
+          const newX = enemy.x + dx;
+          const newY = enemy.y + dy;
+
+          if (canMoveTo(newX, newY) || enemy.state === 'ghost') { // Ghosts can move through dirt
+            enemy.x = Math.max(0, Math.min(GameState.gameWidth - 0.5, newX));
+            enemy.y = Math.max(0, Math.min(GameState.gameHeight - 0.5, newY));
+            
+            // Enemies dig slowly if not ghost
+            if (!inTunnel && enemy.state !== 'ghost' && Math.random() < 0.05) {
+              digAt(enemy.x, enemy.y, 0.5);
+            }
+          } else {
+            enemy.dir = Math.random() * Math.PI * 2;
+          }
+        });
+
+        // Remove dead enemies
+        GameState.enemies = GameState.enemies.filter(enemy => enemy.alive);
+        
+        // Check for level progression
+        if (GameState.enemies.length === 0 && GameState.gameRunning) {
+          GameState.level++;
+          startLevel();
+        }
+      }
+
+      function updateRocks() {
+        GameState.rocks.forEach(rock => {
+          const belowY = Math.floor(rock.y) + 1;
+          if (belowY < GameState.gameHeight && GameState.grid[belowY][Math.floor(rock.x)] === GameState.TUNNEL) {
+            if (!rock.falling) {
+              rock.falling = true;
+              rock.fallSpeed = 0;
+              GameState.grid[Math.floor(rock.y)][Math.floor(rock.x)] = GameState.TUNNEL;
+            }
+          }
+
+          if (rock.falling) {
+            rock.fallSpeed += 0.02; // Slowed gravity
+            rock.y += rock.fallSpeed;
+            
+            const groundY = Math.floor(rock.y + 1);
+            if (groundY >= GameState.gameHeight || 
+                (groundY < GameState.gameHeight && GameState.grid[groundY][Math.floor(rock.x)] !== GameState.TUNNEL)) {
+              rock.y = Math.floor(rock.y);
+              rock.falling = false;
+              rock.fallSpeed = 0;
+              if (rock.y < GameState.gameHeight) {
+                GameState.grid[Math.floor(rock.y)][Math.floor(rock.x)] = GameState.ROCK;
+              }
+            }
+          }
+        });
+      }
+
+      function checkCollisions() {
+        const { players, enemies, rocks } = GameState;
+        
+        // Player-enemy collisions
+        ['p1', 'p2'].forEach(pkey => {
+          const player = players[pkey];
+          if (!player.alive) return;
+
+          enemies.forEach(enemy => {
+            if (!enemy.alive || enemy.inflated > 1.5 || enemy.state === 'inflated') return;
+            const dist = Math.sqrt((player.x - enemy.x) ** 2 + (player.y - enemy.y) ** 2);
+            if (dist < 1) {
+              player.alive = false;
+              GameState.gameRunning = false;
+            }
+          });
+
+          // Player-rock collisions
+          rocks.forEach(rock => {
+            if (!rock.falling || rock.fallSpeed < 0.2) return;
+            const dist = Math.sqrt((player.x - rock.x) ** 2 + (player.y - rock.y) ** 2);
+            if (dist < 1.2) {
+              player.alive = false;
+              GameState.gameRunning = false;
+            }
+          });
+        });
+
+        // Rock-enemy collisions
+        rocks.forEach(rock => {
+          if (!rock.falling || rock.fallSpeed < 0.2) return;
+          enemies.forEach(enemy => {
+            if (!enemy.alive) return;
+            const dist = Math.sqrt((rock.x - enemy.x) ** 2 + (rock.y - enemy.y) ** 2);
+            if (dist < 1.2) {
+              enemy.alive = false;
+              // Award points to nearest living player
+              const p1 = players.p1;
+              const p2 = players.p2;
+              const p1Dist = p1.alive ? Math.sqrt((rock.x - p1.x) ** 2 + (rock.y - p1.y) ** 2) : Infinity;
+              const p2Dist = p2.alive ? Math.sqrt((rock.x - p2.x) ** 2 + (rock.y - p2.y) ** 2) : Infinity;
+              if (p1Dist < p2Dist && p1Dist < 10) {
+                p1.score += 500;
+              } else if (p2Dist < 10) {
+                p2.score += 500;
+              }
+            }
+          });
+        });
+      }
+
+      // Rendering
+      let canvas, ctx;
+
+      function setupRenderer() {
+        canvas = document.getElementById('game-canvas');
+        ctx = canvas.getContext('2d');
+        canvas.width = GameState.gameWidth * GameState.cellSize;
+        canvas.height = GameState.gameHeight * GameState.cellSize;
+      }
+
+      function render() {
+        const { grid, players, enemies, rocks, cellSize, level } = GameState;
+        
+        // Clear canvas
+        ctx.fillStyle = '#0a0a0a';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Draw grid
+        for (let y = 0; y < grid.length; y++) {
+          for (let x = 0; x < grid[y].length; x++) {
+            const cell = grid[y][x];
+            if (cell === GameState.DIRT) {
+              // Dirt texture with variation
+              const variation = (x * 7 + y * 13) % 30;
+              ctx.fillStyle = `rgb(${100 + variation}, ${60 + variation}, ${20})`;
+              ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+              
+              // Add texture dots
+              if ((x + y) % 3 === 0) {
+                ctx.fillStyle = `rgba(80, 50, 10, 0.5)`;
+                ctx.fillRect(x * cellSize + 2, y * cellSize + 2, 2, 2);
+              }
+            }
+          }
+        }
+
+        // Draw rocks
+        rocks.forEach(rock => {
+          ctx.save();
+          ctx.translate(rock.x * cellSize + cellSize/2, rock.y * cellSize + cellSize/2);
+          
+          ctx.fillStyle = '#555';
+          ctx.beginPath();
+          ctx.arc(0, 0, cellSize * 0.6, 0, Math.PI * 2);
+          ctx.fill();
+          
+          ctx.fillStyle = '#888';
+          ctx.beginPath();
+          ctx.arc(-cellSize/5, -cellSize/5, cellSize/4, 0, Math.PI * 2);
+          ctx.fill();
+          
+          ctx.fillStyle = '#333';
+          ctx.beginPath();
+          ctx.arc(cellSize/5, cellSize/5, cellSize/5, 0, Math.PI * 2);
+          ctx.fill();
+          
+          ctx.restore();
+        });
+
+        // Draw enemies
+        enemies.forEach(enemy => {
+          if (!enemy.alive) return;
+          
+          ctx.save();
+          ctx.translate(enemy.x * cellSize + cellSize/2, enemy.y * cellSize + cellSize/2);
+          
+          const baseSize = cellSize * 0.5;
+          const size = baseSize + (enemy.inflated * cellSize * 0.2);
+          const color = enemy.type === 'pooka' ? '#ff6600' : '#dd0000';
+          let alpha = enemy.state === 'ghost' ? 0.5 : 1;
+          
+          // Body
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle = color;
+          ctx.beginPath();
+          ctx.arc(0, 0, size, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Highlight
+          ctx.fillStyle = `rgba(255, 255, 255, ${0.3 * alpha})`;
+          ctx.beginPath();
+          ctx.arc(-size/3, -size/3, size/3, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Eyes
+          ctx.fillStyle = '#fff';
+          const eyeSize = Math.max(3, size/3.5);
+          ctx.beginPath();
+          ctx.arc(-size/2.5, -size/4, eyeSize, 0, Math.PI * 2);
+          ctx.arc(size/2.5, -size/4, eyeSize, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // Pupils
+          ctx.fillStyle = '#000';
+          ctx.beginPath();
+          ctx.arc(-size/2.5, -size/4, eyeSize/2, 0, Math.PI * 2);
+          ctx.arc(size/2.5, -size/4, eyeSize/2, 0, Math.PI * 2);
+          ctx.fill();
+          
+          ctx.globalAlpha = 1;
+          ctx.restore();
+        });
+
+        // Draw players
+        ['p1', 'p2'].forEach(pkey => {
+          const player = players[pkey];
+          if (!player.alive) return;
+          
+          ctx.save();
+          ctx.translate(player.x * cellSize + cellSize/2, player.y * cellSize + cellSize/2);
+          ctx.rotate(player.dir);
+          
+          // Body
+          ctx.fillStyle = player.color;
+          ctx.fillRect(-cellSize/2, -cellSize/2.5, cellSize * 0.9, cellSize * 0.5);
+          
+          // Highlight
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+          ctx.fillRect(-cellSize/3, -cellSize/2.5, cellSize/2, cellSize/6);
+          
+          // Eyes
+          ctx.fillStyle = '#fff';
+          ctx.fillRect(cellSize/6, -cellSize/3, cellSize/4, cellSize/4);
+          ctx.fillRect(cellSize/6, cellSize/10, cellSize/4, cellSize/4);
+          
+          // Pupils
+          ctx.fillStyle = '#000';
+          ctx.fillRect(cellSize/4, -cellSize/5, cellSize/8, cellSize/8);
+          ctx.fillRect(cellSize/4, cellSize/6, cellSize/8, cellSize/8);
+          
+          ctx.restore();
+
+          // Draw pump line
+          if (player.pump.active && player.pump.target) {
+            ctx.strokeStyle = player.color;
+            ctx.lineWidth = 3;
+            ctx.setLineDash([8, 4]);
+            ctx.beginPath();
+            ctx.moveTo(player.x * cellSize + cellSize/2, player.y * cellSize + cellSize/2);
+            ctx.lineTo(player.pump.target.x * cellSize + cellSize/2, player.pump.target.y * cellSize + cellSize/2);
+            ctx.stroke();
+            ctx.setLineDash([]);
+          }
+        });
+
+        // Draw UI overlay
+        drawUI();
+      }
+
+      function drawUI() {
+        const { players, level } = GameState;
+        
+        // Top UI bar
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        ctx.fillRect(0, 0, canvas.width, 70);
+        
+        // Scores
+        ctx.font = 'bold 20px monospace';
+        ctx.fillStyle = players.p1.color;
+        ctx.fillText(`P1: ${players.p1.score}`, 15, 30);
+        
+        ctx.fillStyle = players.p2.color;
+        ctx.fillText(`P2: ${players.p2.score}`, 15, 55);
+        
+        // Level
+        ctx.fillStyle = '#fff';
+        ctx.fillText(`Level: ${level}`, canvas.width / 2 - 50, 30);
+        
+        // Controls
+        ctx.font = '13px monospace';
+        ctx.fillStyle = '#aaa';
+        ctx.textAlign = 'right';
+        ctx.fillText('P1: Mouse to move, Click to pump', canvas.width - 15, 30);
+        ctx.fillText('P2: WASD to move, SPACE to pump', canvas.width - 15, 55);
+        ctx.textAlign = 'left';
+        
+        // Game over
+        if (!players.p1.alive || !players.p2.alive) {
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          
+          ctx.font = 'bold 40px monospace';
+          ctx.fillStyle = '#fff';
+          ctx.textAlign = 'center';
+          ctx.fillText('GAME OVER', canvas.width/2, canvas.height/2 - 60);
+          
+          ctx.font = 'bold 30px monospace';
+          ctx.fillStyle = players.p1.color;
+          ctx.fillText(`P1: ${players.p1.score}`, canvas.width/2, canvas.height/2);
+          
+          ctx.fillStyle = players.p2.color;
+          ctx.fillText(`P2: ${players.p2.score}`, canvas.width/2, canvas.height/2 + 40);
+          
+          ctx.font = '20px monospace';
+          ctx.fillStyle = '#0f0';
+          ctx.fillText('Press R to Restart', canvas.width/2, canvas.height/2 + 90);
+          
+          ctx.textAlign = 'left';
+        }
+      }
+
+      // Game loop
+      function gameLoop() {
+        if (GameState.gameRunning) {
+          updatePlayer(GameState.players.p1, true);
+          updatePlayer(GameState.players.p2, false);
+          updateEnemies();
+          updateRocks();
+          checkCollisions();
+        }
+        
+        render();
+        requestAnimationFrame(gameLoop);
+      }
+
+      // Start game
+      setupRenderer();
+      setupInput();
+      init();
+      
+      document.getElementById('info').textContent = 'Game Ready!';
+      setTimeout(() => {
+        document.getElementById('info').textContent = '';
+      }, 2000);
+      
+      gameLoop();
+    })();
+  </script>
+</body>
+</html>
+```
