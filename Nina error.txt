@@ -1,0 +1,902 @@
+I'll enhance the system with comprehensive runtime validation, error boundaries, and production-level error handling with detailed stack tracing.
+
+
+/**
+ * Enhanced error classes for better error handling and debugging
+ */
+class StyleRegistryError extends Error {
+    public readonly code: string;
+    public readonly context: Record<string, any>;
+    public readonly timestamp: number;
+    public readonly severity: 'low' | 'medium' | 'high' | 'critical';
+
+    constructor(
+        message: string, 
+        code: string, 
+        context: Record<string, any> = {}, 
+        severity: 'low' | 'medium' | 'high' | 'critical' = 'medium'
+    ) {
+        super(message);
+        this.name = 'StyleRegistryError';
+        this.code = code;
+        this.context = context;
+        this.timestamp = Date.now();
+        this.severity = severity;
+
+        // Maintain proper stack trace
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, StyleRegistryError);
+        }
+    }
+
+    toJSON() {
+        return {
+            name: this.name,
+            message: this.message,
+            code: this.code,
+            context: this.context,
+            timestamp: this.timestamp,
+            severity: this.severity,
+            stack: this.stack
+        };
+    }
+}
+
+/**
+ * Runtime validation and enforcement system
+ */
+class StyleRuntimeValidator {
+    private static readonly CSS_PROPERTY_PATTERNS = {
+        color: /^(#[0-9a-fA-F]{3,8}|rgb\(|rgba\(|hsl\(|hsla\(|[a-zA-Z]+).*$/,
+        size: /^(\d+(\.\d+)?(px|em|rem|%|vh|vw|vmin|vmax|ch|ex)|0|auto|inherit|initial)$/,
+        display: /^(block|inline|inline-block|flex|grid|none|table|table-cell|table-row|inherit|initial)$/,
+        position: /^(static|relative|absolute|fixed|sticky|inherit|initial)$/,
+        flexDirection: /^(row|row-reverse|column|column-reverse|inherit|initial)$/,
+        justifyContent: /^(flex-start|flex-end|center|space-between|space-around|space-evenly|inherit|initial)$/,
+        alignItems: /^(stretch|flex-start|flex-end|center|baseline|inherit|initial)$/
+    };
+
+    private static readonly PSEUDO_SELECTORS = [
+        'hover', 'focus', 'active', 'visited', 'disabled', 'checked', 'first-child',
+        'last-child', 'nth-child', 'nth-of-type', 'before', 'after', 'focus-within',
+        'focus-visible', 'target', 'valid', 'invalid', 'required', 'optional'
+    ];
+
+    private static readonly DANGEROUS_PATTERNS = [
+        /javascript:/i,
+        /expression\(/i,
+        /behavior:/i,
+        /@import/i,
+        /binding:/i
+    ];
+
+    static validateStyleProperty(property: string, value: string | number | null): ValidationResult {
+        const result: ValidationResult = { isValid: true, warnings: [], errors: [] };
+
+        if (value === null || value === undefined) {
+            return result; // Null values are allowed for inheritance
+        }
+
+        const stringValue = String(value);
+
+        // Check for dangerous patterns
+        for (const pattern of this.DANGEROUS_PATTERNS) {
+            if (pattern.test(stringValue)) {
+                result.errors.push(`Potentially dangerous CSS value detected: ${stringValue}`);
+                result.isValid = false;
+            }
+        }
+
+        // Validate specific property patterns
+        const kebabProperty = this.camelToKebab(property);
+        const pattern = this.getPatternForProperty(kebabProperty);
+        
+        if (pattern && !pattern.test(stringValue)) {
+            result.warnings.push(
+                `Property "${property}" value "${stringValue}" may not be valid CSS. Expected pattern: ${pattern.source}`
+            );
+        }
+
+        // Check for common typos
+        const commonTypos = this.checkCommonTypos(property, stringValue);
+        if (commonTypos.length > 0) {
+            result.warnings.push(...commonTypos);
+        }
+
+        return result;
+    }
+
+    static validatePseudoSelector(selector: string): ValidationResult {
+        const result: ValidationResult = { isValid: true, warnings: [], errors: [] };
+        
+        if (!selector.startsWith(':')) {
+            result.errors.push(`Pseudo-selector must start with ':'. Got: ${selector}`);
+            result.isValid = false;
+            return result;
+        }
+
+        const selectorName = selector.substring(1);
+        const isKnownSelector = this.PSEUDO_SELECTORS.some(known => 
+            selectorName === known || selectorName.startsWith(known + '(')
+        );
+
+        if (!isKnownSelector) {
+            result.warnings.push(
+                `Unknown pseudo-selector: ${selector}. Known selectors: ${this.PSEUDO_SELECTORS.join(', ')}`
+            );
+        }
+
+        return result;
+    }
+
+    static validateClassName(className: string): ValidationResult {
+        const result: ValidationResult = { isValid: true, warnings: [], errors: [] };
+
+        // CSS class name validation
+        const validClassPattern = /^[a-zA-Z_-][a-zA-Z0-9_-]*$/;
+        const baseClassName = className.split(':')[0];
+
+        if (!validClassPattern.test(baseClassName)) {
+            result.errors.push(
+                `Invalid CSS class name: "${baseClassName}". Must start with letter, underscore, or hyphen.`
+            );
+            result.isValid = false;
+        }
+
+        // Check for reserved keywords
+        const reservedKeywords = ['auto', 'inherit', 'initial', 'unset', 'none'];
+        if (reservedKeywords.includes(baseClassName.toLowerCase())) {
+            result.warnings.push(`Class name "${baseClassName}" conflicts with CSS reserved keyword`);
+        }
+
+        return result;
+    }
+
+    private static getPatternForProperty(property: string): RegExp | null {
+        // Direct match
+        if (this.CSS_PROPERTY_PATTERNS[property]) {
+            return this.CSS_PROPERTY_PATTERNS[property];
+        }
+
+        // Pattern matching for similar properties
+        if (property.includes('color')) return this.CSS_PROPERTY_PATTERNS.color;
+        if (property.match(/(width|height|size|margin|padding|top|left|right|bottom|gap)/)) {
+            return this.CSS_PROPERTY_PATTERNS.size;
+        }
+
+        return null;
+    }
+
+    private static checkCommonTypos(property: string, value: string): string[] {
+        const warnings: string[] = [];
+        const commonTypos = {
+            'centre': 'center',
+            'grey': 'gray',
+            'colour': 'color',
+            'behaviour': 'behavior'
+        };
+
+        for (const [typo, correct] of Object.entries(commonTypos)) {
+            if (value.toLowerCase().includes(typo)) {
+                warnings.push(`Possible typo in "${value}": "${typo}" should be "${correct}"`);
+            }
+        }
+
+        return warnings;
+    }
+
+    private static camelToKebab(str: string): string {
+        return str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+    }
+}
+
+interface ValidationResult {
+    isValid: boolean;
+    warnings: string[];
+    errors: string[];
+}
+
+/**
+ * Production-level error boundary and logging system
+ */
+class StyleErrorBoundary {
+    private static instance: StyleErrorBoundary;
+    private errorHandlers: Array<(error: StyleRegistryError) => void> = [];
+    private warningHandlers: Array<(warning: string, context?: any) => void> = [];
+    private isProduction: boolean;
+    private errorLog: StyleRegistryError[] = [];
+    private maxLogSize: number = 100;
+
+    private constructor() {
+        this.isProduction = process.env.NODE_ENV === 'production';
+        this.setupGlobalErrorHandling();
+    }
+
+    static getInstance(): StyleErrorBoundary {
+        if (!StyleErrorBoundary.instance) {
+            StyleErrorBoundary.instance = new StyleErrorBoundary();
+        }
+        return StyleErrorBoundary.instance;
+    }
+
+    private setupGlobalErrorHandling(): void {
+        // Handle unhandled promise rejections
+        if (typeof window !== 'undefined') {
+            window.addEventListener('unhandledrejection', (event) => {
+                if (event.reason instanceof StyleRegistryError) {
+                    this.handleError(event.reason);
+                    event.preventDefault();
+                }
+            });
+        }
+
+        // Handle uncaught errors
+        if (typeof window !== 'undefined') {
+            window.addEventListener('error', (event) => {
+                if (event.error instanceof StyleRegistryError) {
+                    this.handleError(event.error);
+                }
+            });
+        }
+    }
+
+    addErrorHandler(handler: (error: StyleRegistryError) => void): void {
+        this.errorHandlers.push(handler);
+    }
+
+    addWarningHandler(handler: (warning: string, context?: any) => void): void {
+        this.warningHandlers.push(handler);
+    }
+
+    handleError(error: StyleRegistryError): void {
+        // Add to error log
+        this.errorLog.push(error);
+        if (this.errorLog.length > this.maxLogSize) {
+            this.errorLog.shift();
+        }
+
+        // Call registered handlers
+        this.errorHandlers.forEach(handler => {
+            try {
+                handler(error);
+            } catch (handlerError) {
+                console.error('Error in error handler:', handlerError);
+            }
+        });
+
+        // Default logging behavior
+        if (this.isProduction) {
+            // In production, log errors but don't throw
+            console.error('StyleRegistry Error:', {
+                code: error.code,
+                message: error.message,
+                context: error.context,
+                timestamp: new Date(error.timestamp).toISOString()
+            });
+        } else {
+            // In development, provide detailed information
+            console.group(`🎨 StyleRegistry Error [${error.code}]`);
+            console.error('Message:', error.message);
+            console.error('Context:', error.context);
+            console.error('Stack:', error.stack);
+            console.error('Severity:', error.severity);
+            console.groupEnd();
+        }
+    }
+
+    handleWarning(warning: string, context?: any): void {
+        this.warningHandlers.forEach(handler => {
+            try {
+                handler(warning, context);
+            } catch (handlerError) {
+                console.error('Error in warning handler:', handlerError);
+            }
+        });
+
+        if (!this.isProduction) {
+            console.warn('🎨 StyleRegistry Warning:', warning, context || '');
+        }
+    }
+
+    getErrorLog(): StyleRegistryError[] {
+        return [...this.errorLog];
+    }
+
+    clearErrorLog(): void {
+        this.errorLog = [];
+    }
+
+    createSafeWrapper<T extends (...args: any[]) => any>(
+        fn: T,
+        context: string,
+        fallback?: any
+    ): T {
+        return ((...args: any[]) => {
+            try {
+                return fn(...args);
+            } catch (error) {
+                const styleError = error instanceof StyleRegistryError 
+                    ? error 
+                    : new StyleRegistryError(
+                        `Unexpected error in ${context}: ${error.message}`,
+                        'UNEXPECTED_ERROR',
+                        { originalError: error, context, args },
+                        'high'
+                    );
+
+                this.handleError(styleError);
+                
+                if (fallback !== undefined) {
+                    return fallback;
+                }
+                
+                if (this.isProduction) {
+                    return null; // Graceful degradation in production
+                }
+                
+                throw styleError; // Re-throw in development
+            }
+        }) as T;
+    }
+}
+
+/**
+ * Enhanced StyleRegistry with comprehensive validation and error handling
+ */
+class ProductionStyleRegistry extends StyleRegistry {
+    private errorBoundary: StyleErrorBoundary;
+    private validationEnabled: boolean = true;
+    private strictMode: boolean = false;
+    private usageStats: Map<string, number> = new Map();
+
+    constructor(app_prefix: string, options: {
+        validationEnabled?: boolean;
+        strictMode?: boolean;
+        errorHandlers?: Array<(error: StyleRegistryError) => void>;
+        warningHandlers?: Array<(warning: string, context?: any) => void>;
+    } = {}) {
+        // Wrap constructor in error boundary
+        const errorBoundary = StyleErrorBoundary.getInstance();
+        
+        try {
+            super(app_prefix);
+            
+            this.errorBoundary = errorBoundary;
+            this.validationEnabled = options.validationEnabled ?? true;
+            this.strictMode = options.strictMode ?? false;
+
+            // Register custom handlers
+            options.errorHandlers?.forEach(handler => 
+                this.errorBoundary.addErrorHandler(handler)
+            );
+            options.warningHandlers?.forEach(handler => 
+                this.errorBoundary.addWarningHandler(handler)
+            );
+
+            this.validateConstructorInput(app_prefix);
+            
+        } catch (error) {
+            const styleError = new StyleRegistryError(
+                `Failed to initialize StyleRegistry: ${error.message}`,
+                'INITIALIZATION_ERROR',
+                { app_prefix, options },
+                'critical'
+            );
+            errorBoundary.handleError(styleError);
+            throw styleError;
+        }
+    }
+
+    registerStyles(
+        group_name: string,
+        styleProperties: string[],
+        styleDefinitions: { [className: string]: (string | number | null)[] }
+    ): { [baseClassName: string]: string } {
+        return this.errorBoundary.createSafeWrapper(
+            this._registerStylesInternal.bind(this),
+            'registerStyles',
+            {}
+        )(group_name, styleProperties, styleDefinitions);
+    }
+
+    private _registerStylesInternal(
+        group_name: string,
+        styleProperties: string[],
+        styleDefinitions: { [className: string]: (string | number | null)[] }
+    ): { [baseClassName: string]: string } {
+        // Track usage
+        const usageKey = `${group_name}:registerStyles`;
+        this.usageStats.set(usageKey, (this.usageStats.get(usageKey) || 0) + 1);
+
+        // Comprehensive validation
+        this.validateRegisterStylesInput(group_name, styleProperties, styleDefinitions);
+
+        // Validate each style definition
+        if (this.validationEnabled) {
+            this.validateStyleDefinitions(group_name, styleProperties, styleDefinitions);
+        }
+
+        // Check for potential performance issues
+        this.checkPerformanceWarnings(group_name, styleProperties, styleDefinitions);
+
+        // Call parent implementation
+        try {
+            return super.registerStyles(group_name, styleProperties, styleDefinitions);
+        } catch (error) {
+            throw new StyleRegistryError(
+                `Failed to register styles for group "${group_name}": ${error.message}`,
+                'STYLE_REGISTRATION_ERROR',
+                { group_name, styleProperties, styleDefinitions, originalError: error },
+                'high'
+            );
+        }
+    }
+
+    registerRawCss(rawCss: string): void {
+        return this.errorBoundary.createSafeWrapper(
+            this._registerRawCssInternal.bind(this),
+            'registerRawCss'
+        )(rawCss);
+    }
+
+    private _registerRawCssInternal(rawCss: string): void {
+        this.validateRawCssInput(rawCss);
+        
+        if (this.validationEnabled) {
+            this.validateRawCssContent(rawCss);
+        }
+
+        try {
+            super.registerRawCss(rawCss);
+        } catch (error) {
+            throw new StyleRegistryError(
+                `Failed to register raw CSS: ${error.message}`,
+                'RAW_CSS_ERROR',
+                { rawCss, originalError: error },
+                'medium'
+            );
+        }
+    }
+
+    getStylesheet(): string {
+        return this.errorBoundary.createSafeWrapper(
+            super.getStylesheet.bind(this),
+            'getStylesheet',
+            ''
+        )();
+    }
+
+    // Enhanced validation methods
+    private validateConstructorInput(app_prefix: string): void {
+        if (typeof app_prefix !== 'string') {
+            throw new StyleRegistryError(
+                'app_prefix must be a string',
+                'INVALID_APP_PREFIX_TYPE',
+                { app_prefix, type: typeof app_prefix },
+                'critical'
+            );
+        }
+
+        if (!app_prefix.trim()) {
+            throw new StyleRegistryError(
+                'app_prefix cannot be empty',
+                'EMPTY_APP_PREFIX',
+                { app_prefix },
+                'critical'
+            );
+        }
+
+        const validIdentifier = /^[a-zA-Z_-][a-zA-Z0-9_-]*$/;
+        if (!validIdentifier.test(app_prefix)) {
+            throw new StyleRegistryError(
+                `Invalid app_prefix "${app_prefix}". Must start with letter, underscore, or hyphen and contain only alphanumeric characters, hyphens, and underscores.`,
+                'INVALID_APP_PREFIX_FORMAT',
+                { 
+                    app_prefix, 
+                    pattern: validIdentifier.source,
+                    suggestion: app_prefix.replace(/[^a-zA-Z0-9_-]/g, '-').replace(/^[^a-zA-Z_-]/, 'app-')
+                },
+                'high'
+            );
+        }
+
+        // Check for common mistakes
+        if (app_prefix.includes(' ')) {
+            throw new StyleRegistryError(
+                'app_prefix cannot contain spaces. Use hyphens or underscores instead.',
+                'APP_PREFIX_CONTAINS_SPACES',
+                { app_prefix, suggestion: app_prefix.replace(/\s+/g, '-') },
+                'high'
+            );
+        }
+    }
+
+    private validateRegisterStylesInput(
+        group_name: string,
+        styleProperties: string[],
+        styleDefinitions: { [className: string]: (string | number | null)[] }
+    ): void {
+        // Validate group_name
+        if (typeof group_name !== 'string' || !group_name.trim()) {
+            throw new StyleRegistryError(
+                'group_name must be a non-empty string',
+                'INVALID_GROUP_NAME',
+                { group_name, type: typeof group_name },
+                'high'
+            );
+        }
+
+        // Validate styleProperties
+        if (!Array.isArray(styleProperties)) {
+            throw new StyleRegistryError(
+                'styleProperties must be an array',
+                'INVALID_STYLE_PROPERTIES_TYPE',
+                { styleProperties, type: typeof styleProperties },
+                'high'
+            );
+        }
+
+        if (styleProperties.length === 0) {
+            throw new StyleRegistryError(
+                'styleProperties cannot be empty',
+                'EMPTY_STYLE_PROPERTIES',
+                { group_name },
+                'high'
+            );
+        }
+
+        // Validate each property
+        styleProperties.forEach((prop, index) => {
+            if (typeof prop !== 'string' || !prop.trim()) {
+                throw new StyleRegistryError(
+                    `Invalid property at index ${index}: must be a non-empty string`,
+                    'INVALID_PROPERTY_TYPE',
+                    { property: prop, index, group_name },
+                    'high'
+                );
+            }
+        });
+
+        // Check for duplicate properties
+        const duplicates = styleProperties.filter((prop, index) => 
+            styleProperties.indexOf(prop) !== index
+        );
+        if (duplicates.length > 0) {
+            this.errorBoundary.handleWarning(
+                `Duplicate properties found in group "${group_name}": ${duplicates.join(', ')}`,
+                { group_name, duplicates }
+            );
+        }
+
+        // Validate styleDefinitions
+        if (!styleDefinitions || typeof styleDefinitions !== 'object') {
+            throw new StyleRegistryError(
+                'styleDefinitions must be an object',
+                'INVALID_STYLE_DEFINITIONS_TYPE',
+                { styleDefinitions, type: typeof styleDefinitions },
+                'high'
+            );
+        }
+
+        if (Object.keys(styleDefinitions).length === 0) {
+            throw new StyleRegistryError(
+                'styleDefinitions cannot be empty',
+                'EMPTY_STYLE_DEFINITIONS',
+                { group_name },
+                'medium'
+            );
+        }
+    }
+
+    private validateStyleDefinitions(
+        group_name: string,
+        styleProperties: string[],
+        styleDefinitions: { [className: string]: (string | number | null)[] }
+    ): void {
+        for (const [className, values] of Object.entries(styleDefinitions)) {
+            // Validate class name
+            const classValidation = StyleRuntimeValidator.validateClassName(className);
+            if (!classValidation.isValid) {
+                throw new StyleRegistryError(
+                    `Invalid class name "${className}" in group "${group_name}": ${classValidation.errors.join(', ')}`,
+                    'INVALID_CLASS_NAME',
+                    { className, group_name, errors: classValidation.errors },
+                    'high'
+                );
+            }
+
+            // Handle warnings
+            classValidation.warnings.forEach(warning => 
+                this.errorBoundary.handleWarning(warning, { className, group_name })
+            );
+
+            // Validate pseudo-selector if present
+            if (className.includes(':')) {
+                const pseudoSelector = ':' + className.split(':').slice(1).join(':');
+                const pseudoValidation = StyleRuntimeValidator.validatePseudoSelector(pseudoSelector);
+                
+                pseudoValidation.warnings.forEach(warning => 
+                    this.errorBoundary.handleWarning(warning, { className, group_name })
+                );
+            }
+
+            // Validate values array
+            if (!Array.isArray(values)) {
+                throw new StyleRegistryError(
+                    `Values for class "${className}" must be an array`,
+                    'INVALID_VALUES_TYPE',
+                    { className, group_name, values, type: typeof values },
+                    'high'
+                );
+            }
+
+            if (values.length !== styleProperties.length) {
+                throw new StyleRegistryError(
+                    `Array length mismatch in group "${group_name}" for class "${className}": styleProperties has ${styleProperties.length} items, but values array has ${values.length} items`,
+                    'ARRAY_LENGTH_MISMATCH',
+                    { 
+                        className, 
+                        group_name, 
+                        expectedLength: styleProperties.length, 
+                        actualLength: values.length,
+                        styleProperties,
+                        values
+                    },
+                    'high'
+                );
+            }
+
+            // Validate individual property-value pairs
+            values.forEach((value, index) => {
+                if (value !== null && value !== undefined) {
+                    const property = styleProperties[index];
+                    const validation = StyleRuntimeValidator.validateStyleProperty(property, value);
+                    
+                    if (!validation.isValid) {
+                        if (this.strictMode) {
+                            throw new StyleRegistryError(
+                                `Invalid CSS value for property "${property}" in class "${className}": ${validation.errors.join(', ')}`,
+                                'INVALID_CSS_VALUE',
+                                { property, value, className, group_name, errors: validation.errors },
+                                'medium'
+                            );
+                        } else {
+                            validation.errors.forEach(error => 
+                                this.errorBoundary.handleWarning(error, { property, value, className, group_name })
+                            );
+                        }
+                    }
+
+                    validation.warnings.forEach(warning => 
+                        this.errorBoundary.handleWarning(warning, { property, value, className, group_name })
+                    );
+                }
+            });
+        }
+    }
+
+    private validateRawCssInput(rawCss: string): void {
+        if (typeof rawCss !== 'string') {
+            throw new StyleRegistryError(
+                'Raw CSS must be a string',
+                'INVALID_RAW_CSS_TYPE',
+                { rawCss, type: typeof rawCss },
+                'high'
+            );
+        }
+    }
+
+    private validateRawCssContent(rawCss: string): void {
+        // Check for dangerous patterns
+        const dangerousPatterns = [
+            { pattern: /javascript:/i, message: 'JavaScript URLs are not allowed in CSS' },
+            { pattern: /expression\(/i, message: 'CSS expressions are not allowed' },
+            { pattern: /behavior:/i, message: 'CSS behaviors are not allowed' },
+            { pattern: /@import\s+url\s*\(\s*["']?javascript:/i, message: 'JavaScript imports are not allowed' }
+        ];
+
+        dangerousPatterns.forEach(({ pattern, message }) => {
+            if (pattern.test(rawCss)) {
+                throw new StyleRegistryError(
+                    `Security violation in raw CSS: ${message}`,
+                    'SECURITY_VIOLATION',
+                    { rawCss: rawCss.substring(0, 200) + '...', pattern: pattern.source },
+                    'critical'
+                );
+            }
+        });
+
+        // Check for balanced braces
+        const openBraces = (rawCss.match(/\{/g) || []).length;
+        const closeBraces = (rawCss.match(/\}/g) || []).length;
+        
+        if (openBraces !== closeBraces) {
+            this.errorBoundary.handleWarning(
+                `Unbalanced braces in raw CSS: ${openBraces} opening, ${closeBraces} closing`,
+                { rawCss: rawCss.substring(0, 200) + '...' }
+            );
+        }
+    }
+
+    private checkPerformanceWarnings(
+        group_name: string,
+        styleProperties: string[],
+        styleDefinitions: { [className: string]: (string | number | null)[] }
+    ): void {
+        const classCount = Object.keys(styleDefinitions).length;
+        const propertyCount = styleProperties.length;
+
+        // Warn about large style groups
+        if (classCount > 50) {
+            this.errorBoundary.handleWarning(
+                `Large style group detected: "${group_name}" has ${classCount} classes. Consider splitting into smaller groups.`,
+                { group_name, classCount }
+            );
+        }
+
+        if (propertyCount > 20) {
+            this.errorBoundary.handleWarning(
+                `Many properties in group "${group_name}": ${propertyCount} properties. Consider using composition.`,
+                { group_name, propertyCount }
+            );
+        }
+
+        // Check for potential unused styles (all null values)
+        Object.entries(styleDefinitions).forEach(([className, values]) => {
+            const nonNullValues = values.filter(v => v !== null && v !== undefined);
+            if (nonNullValues.length === 0) {
+                this.errorBoundary.handleWarning(
+                    `Class "${className}" in group "${group_name}" has no non-null values`,
+                    { className, group_name }
+                );
+            }
+        });
+    }
+
+    // Usage analytics
+    getUsageStats(): Record<string, number> {
+        return Object.fromEntries(this.usageStats);
+    }
+
+    clearUsageStats(): void {
+        this.usageStats.clear();
+    }
+
+    // Development helpers
+    enableStrictMode(): void {
+        this.strictMode = true;
+        this.errorBoundary.handleWarning('Strict mode enabled - CSS validation errors will throw exceptions');
+    }
+
+    disableStrictMode(): void {
+        this.strictMode = false;
+        this.errorBoundary.handleWarning('Strict mode disabled - CSS validation errors will only show warnings');
+    }
+
+    enableValidation(): void {
+        this.validationEnabled = true;
+    }
+
+    disableValidation(): void {
+        this.validationEnabled = false;
+        this.errorBoundary.handleWarning('CSS validation disabled - use with caution in production');
+    }
+}
+
+/**
+ * React Error Boundary Component for StyleRegistry
+ */
+interface StyleErrorBoundaryState {
+    hasError: boolean;
+    error: StyleRegistryError | null;
+}
+
+class ReactStyleErrorBoundary extends React.Component<
+    { children: React.ReactNode; fallback?: React.ComponentType<{ error: StyleRegistryError }> },
+    StyleErrorBoundaryState
+> {
+    constructor(props: any) {
+        super(props);
+        this.state = { hasError: false, error: null };
+    }
+
+    static getDerivedStateFromError(error: Error): StyleErrorBoundaryState {
+        if (error instanceof StyleRegistryError) {
+            return { hasError: true, error };
+        }
+        return { hasError: false, error: null };
+    }
+
+    componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+        if (error instanceof StyleRegistryError) {
+            const errorBoundary = StyleErrorBoundary.getInstance();
+            errorBoundary.handleError(error);
+        }
+    }
+
+    render() {
+        if (this.state.hasError && this.state.error) {
+            const FallbackComponent = this.props.fallback || DefaultErrorFallback;
+            return <FallbackComponent error={this.state.error} />;
+        }
+
+        return this.props.children;
+    }
+}
+
+function DefaultErrorFallback({ error }: { error: StyleRegistryError }) {
+    return (
+        <div style={{
+            padding: '20px',
+            border: '2px solid #ef4444',
+            borderRadius: '8px',
+            backgroundColor: '#fef2f2',
+            color: '#dc2626',
+            fontFamily: 'monospace'
+        }}>
+            <h3>🎨 StyleRegistry Error</h3>
+            <p><strong>Code:</strong> {error.code}</p>
+            <p><strong>Message:</strong> {error.message}</p>
+            <details>
+                <summary>Error Details</summary>
+                <pre>{JSON.stringify(error.context, null, 2)}</pre>
+            </details>
+        </div>
+    );
+}
+
+/**
+ * Production-ready setup with comprehensive error handling
+ */
+function createProductionStyleRegistry(
+    appPrefix: string,
+    options: {
+        strictMode?: boolean;
+        enableAnalytics?: boolean;
+        errorReporting?: (error: StyleRegistryError) => void;
+        warningReporting?: (warning: string, context?: any) => void;
+    } = {}
+) {
+    const errorHandlers: Array<(error: StyleRegistryError) => void> = [];
+    const warningHandlers: Array<(warning: string, context?: any) => void> = [];
+
+    // Add analytics if enabled
+    if (options.enableAnalytics) {
+        errorHandlers.push((error) => {
+            // Send to analytics service
+            console.log('Analytics: StyleRegistry Error', {
+                code: error.code,
+                severity: error.severity,
+                timestamp: error.timestamp
+            });
+        });
+    }
+
+    // Add custom error reporting
+    if (options.errorReporting) {
+        errorHandlers.push(options.errorReporting);
+    }
+
+    if (options.warningReporting) {
+        warningHandlers.push(options.warningReporting);
+    }
+
+    // Add production error handler
+    errorHandlers.push((error) => {
+        if (error.severity === 'critical') {
+            // In production, you might want to send critical errors to a monitoring service
+            console.error('Critical StyleRegistry Error:', error.toJSON());
+        }
+    });
+
+    return new ProductionStyleRegistry(appPrefix, {
+        strictMode: options.strictMode ?? false,
+        validationEnabled: true,
+        errorHandlers,
+        warningHandlers
+    });
+}
+
+// Example usage with comprehensive error handling
+function demonstrateProductionUsage() {
+    // Create registry with production-
