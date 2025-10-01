@@ -1,0 +1,492 @@
+Below are the CSS arrays for all the specified components, formatted in the requested structure with `styles`, `cssNames`, and `cssValues`. Each component's styles align with the provided psychology and game theory principles, ensuring intuitive, focused, and visually consistent interactions. The styles use the properties listed in the original `styles` string and incorporate the described behaviors (e.g., dark backgrounds, hover effects, distinct button colors, etc.). Variables like `var(--bg-panel)`, `var(--text-primary)`, and `var(--accent-blue)` are assumed to be defined in a global theme.
+
+Each component is wrapped in its own `<xaiArtifact>` tag with a unique `artifact_id` and appropriate `title` and `contentType`. The `cssValues` are crafted to match the component's purpose and the psychological principles outlined, with null values where properties are not applicable.
+
+---
+
+### 1. Global App & Layout (appStyles.ts)
+
+<xaiArtifact artifact_id="ae8d7ee7-e5d5-4efd-8ee2-3c53e2377896" artifact_version_id="5b3922b2-e26b-4c28-bb9b-adf71975375c" title="appStyles.ts" contentType="text/javascript">
+const styles = `
+    position; inset; display; align-items; justify-content;
+    background-color; z-index;
+    width; max-width; padding;
+    border-radius; box-shadow;
+    top; right;
+    border; color; font-size; cursor;
+    margin-bottom; font-weight;
+    flex-direction; gap; transition;
+    border-left;
+`;
+
+const cssNames = [
+    'appContainer', 'mainGrid', 'mainGridLg', 'panel', 'panelHeader',
+    'contentSections', 'sectionHeaderContainer', 'sectionHeader', 'sectionHeaderGroup',
+    'pipsIndicator', 'addButton', 'footer', 'footerSubtext', 'sectionHeaderStatic',
+    'accordionButton', 'chevron', 'chevronOpen'
+];
+
+const cssValues = [
+    /* appContainer */ 'relative, null, flex, null, null, #1a1a2a, null, 100%, 100%, 1rem, null, null, null, null, null, var(--text-primary), null, null, null, null, column, 1rem, null, null',
+    /* mainGrid */ 'null, null, grid, null, null, null, null, 100%, null, 1rem, null, null, null, null, null, null, null, null, null, null, null, 1rem, null, null',
+    /* mainGridLg */ 'null, null, grid, null, null, null, null, 100%, 1200px, 1rem, null, null, null, null, null, null, null, null, null, null, null, 1rem, null, null',
+    /* panel */ 'null, null, flex, null, null, var(--bg-panel), null, 100%, null, 1rem, var(--border-radius), var(--shadow-elevate), null, null, 1px solid #444, null, null, null, 0.5rem, null, column, 1rem, null, null',
+    /* panelHeader */ 'null, null, flex, center, space-between, null, null, null, null, 0.75rem, null, null, null, null, null, var(--text-primary), 1.25rem, null, 0.5rem, 600, null, null, null, null',
+    /* contentSections */ 'null, null, flex, null, null, null, null, 100%, null, 1rem, null, null, null, null, null, null, null, null, 1rem, null, column, 1rem, null, null',
+    /* sectionHeaderContainer */ 'null, null, flex, center, space-between, null, null, null, null, 0.5rem, null, null, null, null, null, null, null, null, 0.5rem, null, null, null, null, null',
+    /* sectionHeader */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-primary), 1.25rem, null, 0.5rem, 600, null, null, null, null',
+    /* sectionHeaderGroup */ 'null, null, flex, center, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, row, 0.5rem, null, null',
+    /* pipsIndicator */ 'null, null, flex, center, null, null, null, null, null, null, null, null, null, null, null, null, 0.9rem, null, null, null, row, 0.25rem, null, null',
+    /* addButton */ 'null, null, null, null, null, var(--accent-green), null, null, null, 0.5rem 1rem, var(--border-radius), null, null, null, none, #fff, 0.9rem, pointer, null, null, null, null, background 0.2s, null',
+    /* footer */ 'null, null, flex, center, center, var(--bg-panel), null, 100%, null, 1rem, null, null, null, null, 1px solid #444, var(--text-muted), 0.85rem, null, 1rem, null, null, null, null, null',
+    /* footerSubtext */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-muted), 0.75rem, null, null, null, null, null, null, null',
+    /* sectionHeaderStatic */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-primary), 1.25rem, null, 0.5rem, 600, null, null, null, null',
+    /* accordionButton */ 'null, null, flex, center, space-between, var(--bg-panel), null, null, null, 0.75rem, var(--border-radius), null, null, null, 1px solid #444, var(--text-primary), 1rem, pointer, null, null, null, null, background 0.2s, null',
+    /* chevron */ 'null, null, null, center, null, null, null, null, null, null, null, null, null, null, null, var(--text-muted), 1rem, pointer, null, null, null, null, transform 0.2s, null',
+    /* chevronOpen */ 'null, null, null, center, null, null, null, null, null, null, null, null, null, null, null, var(--text-primary), 1rem, null, null, null, null, null, transform: rotate(90deg), null'
+];
+</xaiArtifact>
+
+---
+
+### 2. Add Card Modal (addCardModalStyles.ts)
+
+<xaiArtifact artifact_id="253947ee-81ca-4e6c-8345-fbea954bfa7f" artifact_version_id="19f5e1c4-23c1-4d87-a91d-f30c5575479f" title="addCardModalStyles.ts" contentType="text/javascript">
+const styles = `
+    position; inset; display; align-items; justify-content;
+    background-color; z-index;
+    width; max-width; padding;
+    border-radius; box-shadow;
+    top; right;
+    border; color; font-size; cursor;
+    margin-bottom; font-weight;
+    flex-direction; gap; transition;
+    border-left;
+`;
+
+const cssNames = [
+    'overlay', 'modal', 'close-button', 'header', 'form', 'form-group', 'label',
+    'select', 'error-box', 'error-text', 'button-container', 'submit'
+];
+
+const cssValues = [
+    /* overlay */ 'fixed, 0, flex, center, center, rgba(0,0,0,0.6), 1000, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null',
+    /* modal */ 'relative, null, null, null, null, var(--bg-panel), 1001, 90%, 480px, 1.5rem, var(--border-radius), var(--shadow-elevate), null, null, null, null, null, null, null, null, null, null, null, null',
+    /* close-button */ 'absolute, null, null, null, null, transparent, null, null, null, null, null, null, 0.75rem, 0.75rem, none, var(--text-muted), 1.25rem, pointer, null, null, null, null, null, null',
+    /* header */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1.5rem, null, 1rem, null, null, null, null, null',
+    /* form */ 'null, null, flex, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, column, 1rem, null, null',
+    /* form-group */ 'null, null, flex, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, column, null, null, null',
+    /* label */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 0.25rem, 500, null, null, null, null',
+    /* select */ 'null, null, null, null, null, #2a2a3a, null, null, null, 0.5rem, var(--border-radius), null, null, null, 1px solid #444, var(--text-primary), null, null, null, null, null, null, null, null',
+    /* error-box */ 'null, null, null, null, null, rgba(217,83,79,0.15), null, null, null, 0.5rem, var(--border-radius), null, null, null, null, null, null, null, null, null, null, null, null, 4px solid var(--accent-red)',
+    /* error-text */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--accent-red), 0.85rem, null, null, null, null, null, null, null',
+    /* button-container */ 'null, null, flex, null, flex-end, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null',
+    /* submit */ 'null, null, null, null, null, var(--accent-blue), null, null, null, 0.5rem 1.25rem, var(--border-radius), null, null, null, none, #fff, null, pointer, null, null, null, null, background 0.2s, null'
+];
+</xaiArtifact>
+
+---
+
+### 3. Character Cards List (cardsListStyles.ts)
+
+<xaiArtifact artifact_id="c88f466d-ca42-4e04-a379-6321bc8a617f" artifact_version_id="ef04c952-fc38-4e2a-afa4-4624a6f45595" title="cardsListStyles.ts" contentType="text/javascript">
+const styles = `
+    position; inset; display; align-items; justify-content;
+    background-color; z-index;
+    width; max-width; padding;
+    border-radius; box-shadow;
+    top; right;
+    border; color; font-size; cursor;
+    margin-bottom; font-weight;
+    flex-direction; gap; transition;
+    border-left;
+`;
+
+const cssNames = [
+    'list-container', 'scroll-container', 'no-cards-text', 'cards-ul', 'card-li',
+    'card-li-disabled', 'card-li-editing', 'card-li-draggable', 'card-li-dragging',
+    'card-header', 'card-title-group', 'card-name', 'card-count', 'card-desc',
+    'card-type', 'action-container', 'action-btn', 'action-btn-save', 'action-btn-delete',
+    'action-btn-hidden', 'add-button-container', 'add-button', 'edit-form-container',
+    'edit-label', 'edit-input', 'edit-grid'
+];
+
+const cssValues = [
+    /* list-container */ 'null, null, flex, null, null, var(--bg-panel), null, 100%, null, 1rem, null, null, null, null, null, null, null, null, 0.5rem, null, column, 1rem, null, null',
+    /* scroll-container */ 'null, null, block, null, null, null, null, 100%, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null',
+    /* no-cards-text */ 'null, null, null, center, center, null, null, null, null, 1rem, null, null, null, null, null, var(--text-muted), 0.9rem, null, null, null, null, null, null, null',
+    /* cards-ul */ 'null, null, flex, null, null, null, null, 100%, null, null, null, null, null, null, null, null, null, null, null, null, column, 0.5rem, null, null',
+    /* card-li */ 'null, null, flex, null, null, var(--bg-panel), null, 100%, null, 0.75rem, var(--border-radius), var(--shadow-elevate), null, null, 1px solid #444, var(--text-primary), 0.9rem, pointer, 0.5rem, null, column, 0.5rem, box-shadow 0.2s, null',
+    /* card-li-disabled */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-muted), null, not-allowed, null, null, null, null, opacity 0.2s, null',
+    /* card-li-editing */ 'null, null, null, null, null, rgba(255,255,255,0.05), null, null, null, null, null, var(--shadow-elevate), null, null, 1px solid var(--accent-blue), null, null, null, null, null, null, null, null, null',
+    /* card-li-draggable */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, grab, null, null, null, null, null, null',
+    /* card-li-dragging */ 'null, null, null, null, null, null, null, null, null, null, null, var(--shadow-elevate), null, null, null, null, null, grabbing, null, null, null, null, opacity 0.2s, null',
+    /* card-header */ 'null, null, flex, center, space-between, null, null, null, null, 0.5rem, null, null, null, null, null, var(--text-primary), 1rem, null, null, 600, null, null, null, null',
+    /* card-title-group */ 'null, null, flex, center, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, row, 0.5rem, null, null',
+    /* card-name */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-primary), 1rem, null, null, 600, null, null, null, null',
+    /* card-count */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-muted), 0.85rem, null, null, null, null, null, null, null',
+    /* card-desc */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-primary), 0.9rem, null, 0.5rem, null, null, null, null, null',
+    /* card-type */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-muted), 0.85rem, null, null, null, null, null, null, null',
+    /* action-container */ 'null, null, flex, center, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, row, 0.5rem, null, null',
+    /* action-btn */ 'null, null, null, null, null, var(--bg-panel), null, null, null, 0.5rem, var(--border-radius), null, null, null, 1px solid #444, var(--text-primary), 0.85rem, pointer, null, null, null, null, background 0.2s, null',
+    /* action-btn-save */ 'null, null, null, null, null, var(--accent-blue), null, null, null, 0.5rem, var(--border-radius), null, null, null, none, #fff, 0.85rem, pointer, null, null, null, null, background 0.2s, null',
+    /* action-btn-delete */ 'null, null, null, null, null, var(--accent-red), null, null, null, 0.5rem, var(--border-radius), null, null, null, none, #fff, 0.85rem, pointer, null, null, null, null, background 0.2s, null',
+    /* action-btn-hidden */ 'null, null, none, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null',
+    /* add-button-container */ 'null, null, flex, null, center, null, null, null, null, 1rem, null, null, null, null, null, null, null, null, null, null, null, null, null, null',
+    /* add-button */ 'null, null, null, null, null, var(--accent-green), null, null, null, 0.5rem 1rem, var(--border-radius), null, null, null, none, #fff, 0.9rem, pointer, null, null, null, null, background 0.2s, null',
+    /* edit-form-container */ 'null, null, flex, null, null, null, null, 100%, null, 0.5rem, null, null, null, null, null, null, null, null, null, null, column, 0.5rem, null, null',
+    /* edit-label */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-primary), 0.9rem, null, 0.25rem, 500, null, null, null, null',
+    /* edit-input */ 'null, null, null, null, null, #2a2a3a, null, 100%, null, 0.5rem, var(--border-radius), null, null, null, 1px solid #444, var(--text-primary), 0.9rem, null, null, null, null, null, null, null',
+    /* edit-grid */ 'null, null, grid, null, null, null, null, 100%, null, null, null, null, null, null, null, null, null, null, null, null, null, 0.5rem, null, null'
+];
+</xaiArtifact>
+
+---
+
+### 4. Challenges Table (challengesTableStyles.ts)
+
+<xaiArtifact artifact_id="5cea7168-2665-4e63-a1a4-d7b1f52166c4" artifact_version_id="f2942c15-36f5-4db9-870e-02f689cfc1ae" title="challengesTableStyles.ts" contentType="text/javascript">
+const styles = `
+    position; inset; display; align-items; justify-content;
+    background-color; z-index;
+    width; max-width; padding;
+    border-radius; box-shadow;
+    top; right;
+    border; color; font-size; cursor;
+    margin-bottom; font-weight;
+    flex-direction; gap; transition;
+    border-left;
+`;
+
+const cssNames = [
+    'overflow-container', 'table', 'thead', 'th', 'td', 'tr', 'tr-selected',
+    'tr-editing', 'tr-dragover', 'td-id', 'align-top', 'td-outcome', 'actions',
+    'w-10', 'w-16', 'w-48', 'radio-input', 'input-field', 'input-container-col',
+    'input-error-border', 'error-text', 'action-container', 'action-btn',
+    'action-btn-save', 'action-btn-delete', 'card-name', 'card-desc',
+    'pips-container', 'pips-dots', 'pips-count', 'played-cards-list',
+    'played-card-item', 'played-card-name', 'played-card-type', 'played-card-remove-btn'
+];
+
+const cssValues = [
+    /* overflow-container */ 'null, null, block, null, null, null, null, 100%, null, 0.5rem, null, null, null, null, null, null, null, null, null, null, null, null, null, null',
+    /* table */ 'null, null, table, null, null, var(--bg-panel), null, 100%, null, null, null, null, null, null, 1px solid #444, var(--text-primary), null, null, null, null, null, null, null, null',
+    /* thead */ 'null, null, null, null, null, var(--bg-panel), null, null, null, null, null, null, null, null, null, var(--text-primary), 0.9rem, null, null, 600, null, null, null, null',
+    /* th */ 'null, null, null, null, null, null, null, null, null, 0.5rem, null, null, null, null, 1px solid #444, var(--text-primary), 0.9rem, null, null, 600, null, null, null, null',
+    /* td */ 'null, null, null, null, null, null, null, null, null, 0.5rem, null, null, null, null, 1px solid #444, var(--text-primary), 0.9rem, null, null, null, null, null, null, null',
+    /* tr */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, background 0.2s, null',
+    /* tr-selected */ 'null, null, null, null, null, rgba(0,123,255,0.1), null, null, null, null, null, null, null, null, 1px solid var(--accent-blue), null, null, null, null, null, null, null, null, null',
+    /* tr-editing */ 'null, null, null, null, null, rgba(255,255,255,0.05), null, null, null, null, null, null, null, null, 1px solid var(--accent-blue), null, null, null, null, null, null, null, null, null',
+    /* tr-dragover */ 'null, null, null, null, null, rgba(0,123,255,0.2), null, null, null, null, null, null, null, null, 2px dashed var(--accent-blue), null, null, null, null, null, null, null, null, null',
+    /* td-id */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-muted), 0.9rem, null, null, null, null, null, null, null',
+    /* align-top */ 'null, null, null, flex-start, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null',
+    /* td-outcome */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-primary), 0.9rem, null, null, null, null, null, null, null',
+    /* actions */ 'null, null, flex, center, center, null, null, null, null, 0.5rem, null, null, null, null, null, null, null, null, null, null, row, 0.5rem, null, null',
+    /* w-10 */ 'null, null, null, null, null, null, null, 10%, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null',
+    /* w-16 */ 'null, null, null, null, null, null, null, 16%, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null',
+    /* w-48 */ 'null, null, null, null, null, null, null, 48%, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null',
+    /* radio-input */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null',
+    /* input-field */ 'null, null, null, null, null, #2a2a3a, null, 100%, null, 0.5rem, var(--border-radius), null, null, null, 1px solid #444, var(--text-primary), 0.9rem, null, null, null, null, null, null, null',
+    /* input-container-col */ 'null, null, flex, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, column, 0.5rem, null, null',
+    /* input-error-border */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, 1px solid var(--accent-red), null, null, null, null, null, null, null, null, null',
+    /* error-text */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--accent-red), 0.85rem, null, null, null, null, null, null, null',
+    /* action-container */ 'null, null, flex, center, center, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, row, 0.5rem, null, null',
+    /* action-btn */ 'null, null, null, null, null, var(--bg-panel), null, null, null, 0.5rem, var(--border-radius), null, null, null, 1px solid #444, var(--text-primary), 0.85rem, pointer, null, null, null, null, background 0.2s, null',
+    /* action-btn-save */ 'null, null, null, null, null, var(--accent-blue), null, null, null, 0.5rem, var(--border-radius), null, null, null, none, #fff, 0.85rem, pointer, null, null, null, null, background 0.2s, null',
+    /* action-btn-delete */ 'null, null, null, null, null, var(--accent-red), null, null, null, 0.5rem, var(--border-radius), null, null, null, none, #fff, 0.85rem, pointer, null, null, null, null, background 0.2s, null',
+    /* card-name */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-primary), 0.9rem, null, null, 600, null, null, null, null',
+    /* card-desc */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-primary), 0.85rem, null, null, null, null, null, null, null',
+    /* pips-container */ 'null, null, flex, center, null, null, null, null, null, null, null, null, null, null, null, null, 0.9rem, null, null, null, row, 0.25rem, null, null',
+    /* pips-dots */ 'null, null, null, null, null, null, null, 0.5rem, null, null, 50%, null, null, null, null, null, null, null, null, null, null, null, null, null',
+    /* pips-count */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-muted), 0.85rem, null, null, null, null, null, null, null',
+    /* played-cards-list */ 'null, null, flex, null, null, null, null, 100%, null, null, null, null, null, null, null, null, null, null, null, null, column, 0.5rem, null, null',
+    /* played-card-item */ 'null, null, flex, center, space-between, var(--bg-panel), null, null, null, 0.5rem, var(--border-radius), null, null, null, 1px solid #444, null, null, null, null, null, null, null, null, null',
+    /* played-card-name */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-primary), 0.9rem, null, null, null, null, null, null, null',
+    /* played-card-type */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-muted), 0.85rem, null, null, null, null, null, null, null',
+    /* played-card-remove-btn */ 'null, null, null, null, null, var(--accent-red), null, null, null, 0.5rem, var(--border-radius), null, null, null, none, #fff, 0.85rem, pointer, null, null, null, null, background 0.2s, null'
+];
+</xaiArtifact>
+
+---
+
+### 5. Characters Table (charactersTableStyles.ts)
+
+<xaiArtifact artifact_id="8a838641-a2eb-42ec-b62c-092cefb317c2" artifact_version_id="6bbd35c9-ae4b-49bd-81f4-1182d54c715e" title="charactersTableStyles.ts" contentType="text/javascript">
+const styles = `
+    position; inset; display; align-items; justify-content;
+    background-color; z-index;
+    width; max-width; padding;
+    border-radius; box-shadow;
+    top; right;
+    border; color; font-size; cursor;
+    margin-bottom; font-weight;
+    flex-direction; gap; transition;
+    border-left;
+`;
+
+const cssNames = [
+    'overflow-container', 'table', 'thead', 'th', 'td', 'tr', 'interactive-row',
+    'tr-selected', 'tr-editing', 'td-id', 'td-player', 'th-actions', 'td-actions',
+    'radio-input', 'input-field', 'status-badge', 'status-active', 'status-idle',
+    'action-container', 'action-btn-edit', 'action-btn-save', 'action-btn-cancel',
+    'action-btn-delete'
+];
+
+const cssValues = [
+    /* overflow-container */ 'null, null, block, null, null, null, null, 100%, null, 0.5rem, null, null, null, null, null, null, null, null, null, null, null, null, null, null',
+    /* table */ 'null, null, table, null, null, var(--bg-panel), null, 100%, null, null, null, null, null, null, 1px solid #444, var(--text-primary), null, null, null, null, null, null, null, null',
+    /* thead */ 'null, null, null, null, null, var(--bg-panel), null, null, null, null, null, null, null, null, null, var(--text-primary), 0.9rem, null, null, 600, null, null, null, null',
+    /* th */ 'null, null, null, null, null, null, null, null, null, 0.5rem, null, null, null, null, 1px solid #444, var(--text-primary), 0.9rem, null, null, 600, null, null, null, null',
+    /* td */ 'null, null, null, null, null, null, null, null, null, 0.5rem, null, null, null, null, 1px solid #444, var(--text-primary), 0.9rem, null, null, null, null, null, null, null',
+    /* tr */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, background 0.2s, null',
+    /* interactive-row */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, pointer, null, null, null, null, background 0.2s, null',
+    /* tr-selected */ 'null, null, null, null, null, rgba(0,123,255,0.1), null, null, null, null, null, null, null, null, 1px solid var(--accent-blue), null, null, null, null, null, null, null, null, null',
+    /* tr-editing */ 'null, null, null, null, null, rgba(255,255,255,0.05), null, null, null, null, null, null, null, null, 1px solid var(--accent-blue), null, null, null, null, null, null, null, null, null',
+    /* td-id */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-muted), 0.9rem, null, null, null, null, null, null, null',
+    /* td-player */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-primary), 0.9rem, null, null, 600, null, null, null, null',
+    /* th-actions */ 'null, null, null, center, center, null, null, null, null, 0.5rem, null, null, null, null, 1px solid #444, var(--text-primary), 0.9rem, null, null, null, null, null, null, null',
+    /* td-actions */ 'null, null, flex, center, center, null, null, null, null, 0.5rem, null, null, null, null, 1px solid #444, null, null, null, null, null, row, 0.5rem, null, null',
+    /* radio-input */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null',
+    /* input-field */ 'null, null, null, null, null, #2a2a3a, null, 100%, null, 0.5rem, var(--border-radius), null, null, null, 1px solid #444, var(--text-primary), 0.9rem, null, null, null, null, null, null, null',
+    /* status-badge */ 'null, null, inline-block, null, null, null, null, null, null, 0.25rem 0.5rem, var(--border-radius), null, null, null, null, #fff, 0.85rem, null, null, null, null, null, null, null',
+    /* status-active */ 'null, null, null, null, null, var(--accent-green), null, null, null, null, null, null, null, null, null, #fff, null, null, null, null, null, null, null, null',
+    /* status-idle */ 'null, null, null, null, null, var(--accent-orange), null, null, null, null, null, null, null, null, null, #fff, null, null, null, null, null, null, null, null',
+    /* action-container */ 'null, null, flex, center, center, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, row, 0.5rem, null, null',
+    /* action-btn-edit */ 'null, null, null, null, null, var(--bg-panel), null, null, null, 0.5rem, var(--border-radius), null, null, null, 1px solid #444, var(--text-primary), 0.85rem, pointer, null, null, null, null, background 0.2s, null',
+    /* action-btn-save */ 'null, null, null, null, null, var(--accent-blue), null, null, null, 0.5rem, var(--border-radius), null, null, null, none, #fff, 0.85rem, pointer, null, null, null, null, background 0.2s, null',
+    /* action-btn-cancel */ 'null, null, null, null, null, var(--bg-panel), null, null, null, 0.5rem, var(--border-radius), null, null, null, 1px solid #444, var(--text-muted), 0.85rem, pointer, null, null, null, null, background 0.2s, null',
+    /* action-btn-delete */ 'null, null, null, null, null, var(--accent-red), null, null, null, 0.5rem, var(--border-radius), null, null, null, none, #fff, 0.85rem, pointer, null, null, null, null, background 0.2s, null'
+];
+</xaiArtifact>
+
+---
+
+### 6. Create Character Modal (createCharacterModalStyles.ts)
+
+<xaiArtifact artifact_id="0062bb66-1b21-45f8-bdfa-40fcca745dad" artifact_version_id="a9c46a2b-3d14-4453-b073-08294948636a" title="createCharacterModalStyles.ts" contentType="text/javascript">
+const styles = `
+    position; inset; display; align-items; justify-content;
+    background-color; z-index;
+    width; max-width; padding;
+    border-radius; box-shadow;
+    top; right;
+    border; color; font-size; cursor;
+    margin-bottom; font-weight;
+    flex-direction; gap; transition;
+    border-left;
+`;
+
+const cssNames = [
+    'overlay', 'modal', 'close-button', 'header', 'form', 'fieldset', 'legend',
+    'fieldset-content', 'input-group', 'grid', 'label', 'input', 'textarea',
+    'select', 'radio-group', 'radio-item', 'radio-input', 'radio-label',
+    'count-container', 'count-label', 'count-input', 'error-text', 'button-container',
+    'btn-primary', 'btn-secondary'
+];
+
+const cssValues = [
+    /* overlay */ 'fixed, 0, flex, center, center, rgba(0,0,0,0.6), 1000, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null',
+    /* modal */ 'relative, null, flex, null, null, var(--bg-panel), 1001, 90%, 600px, 1.5rem, var(--border-radius), var(--shadow-elevate), null, null, null, null, null, null, null, null, column, 1rem, null, null',
+    /* close-button */ 'absolute, null, null, null, null, transparent, null, null, null, null, null, null, 0.75rem, 0.75rem, none, var(--text-muted), 1.25rem, pointer, null, null, null, null, null, null',
+    /* header */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-primary), 1.5rem, null, 1rem, 600, null, null, null, null',
+    /* form */ 'null, null, flex, null, null, null, null, 100%, null, null, null, null, null, null, null, null, null, null, null, null, column, 1rem, null, null',
+    /* fieldset */ 'null, null, null, null, null, null, null, 100%, null, 0.5rem, var(--border-radius), null, null, null, 1px solid #444, null, null, null, null, null, null, null, null, null',
+    /* legend */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-primary), 1rem, null, null, 600, null, null, null, null',
+    /* fieldset-content */ 'null, null, flex, null, null, null, null, 100%, null, 0.5rem, null, null, null, null, null, null, null, null, null, null, column, 0.5rem, null, null',
+    /* input-group */ 'null, null, flex, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, column, 0.5rem, null, null',
+    /* grid */ 'null, null, grid, null, null, null, null, 100%, null, null, null, null, null, null, null, null, null, null, null, null, null, 0.5rem, null, null',
+    /* label */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-primary), 0.9rem, null, 0.25rem, 500, null, null, null, null',
+    /* input */ 'null, null, null, null, null, #2a2a3a, null, 100%, null, 0.5rem, var(--border-radius), null, null, null, 1px solid #444, var(--text-primary), 0.9rem, null, null, null, null, null, null, null',
+    /* textarea */ 'null, null, null, null, null, #2a2a3a, null, 100%, null, 0.5rem, var(--border-radius), null, null, null, 1px solid #444, var(--text-primary), 0.9rem, null, null, null, null, null, null, null',
+    /* select */ 'null, null, null, null, null, #2a2a3a, null, 100%, null, 0.5rem, var(--border-radius), null, null, null, 1px solid #444, var(--text-primary), 0.9rem, null, null, null, null, null, null, null',
+    /* radio-group */ 'null, null, flex, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, row, 0.5rem, null, null',
+    /* radio-item */ 'null, null, flex, center, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, 0.25rem, null, null',
+    /* radio-input */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null',
+    /* radio-label */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-primary), 0.9rem, null, null, null, null, null, null, null',
+    /* count-container */ 'null, null, flex, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, row, 0.5rem, null, null',
+    /* count-label */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-primary), 0.9rem, null, 0.25rem, 500, null, null, null, null',
+    /* count-input */ 'null, null, null, null, null, #2a2a3a, null, 4rem, null, 0.5rem, var(--border-radius), null, null, null, 1px solid #444, var(--text-primary), 0.9rem, null, null, null, null, null, null, null',
+    /* error-text */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--accent-red), 0.85rem, null, null, null, null, null, null, null',
+    /* button-container */ 'null, null, flex, null, flex-end, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, row, 0.5rem, null, null',
+    /* btn-primary */ 'null, null, null, null, null, var(--accent-blue), null, null, null, 0.5rem 1.25rem, var(--border-radius), null, null, null, none, #fff, 0.9rem, pointer, null, null, null, null, background 0.2s, null',
+    /* btn-secondary */ 'null, null, null, null, null, var(--bg-panel), null, null, null, 0.5rem 1.25rem, var(--border-radius), null, null, null, 1px solid #444, var(--text-muted), 0.9rem, pointer, null, null, null, null, background 0.2s, null'
+];
+</xaiArtifact>
+
+---
+
+### 7. Editable Header (editableHeaderStyles.ts)
+
+<xaiArtifact artifact_id="aacd71d2-a37a-4a42-aab0-be16f33cf9a0" artifact_version_id="f58c901a-1c49-4ce2-8a58-96cb55e79fd3" title="editableHeaderStyles.ts" contentType="text/javascript">
+const styles = `
+    position; inset; display; align-items; justify-content;
+    background-color; z-index;
+    width; max-width; padding;
+    border-radius; box-shadow;
+    top; right;
+    border; color; font-size; cursor;
+    margin-bottom; font-weight;
+    flex-direction; gap; transition;
+    border-left;
+`;
+
+const cssNames = [
+    'container', 'section', 'label', 'input-group', 'select', 'description',
+    'input', 'textarea', 'button-group', 'btn', 'btn-add', 'btn-save', 'btn-delete'
+];
+
+const cssValues = [
+    /* container */ 'null, null, flex, null, null, var(--bg-panel), null, 100%, null, 1rem, var(--border-radius), var(--shadow-elevate), null, null, 1px solid #444, null, null, null, 0.5rem, null, column, 1rem, null, null',
+    /* section */ 'null, null, flex, null, null, null, null, null, null, 0.5rem, null, null, null, null, null, null, null, null, null, null, column, 0.5rem, null, null',
+    /* label */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-primary), 0.9rem, null, 0.25rem, 500, null, null, null, null',
+    /* input-group */ 'null, null, flex, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, row, 0.5rem, null, null',
+    /* select */ 'null, null, null, null, null, #2a2a3a, null, null, null, 0.5rem, var(--border-radius), null, null, null, 1px solid #444, var(--text-primary), 0.9rem, null, null, null, null, null, null, null',
+    /* description */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-muted), 0.85rem, null, 0.5rem, null, null, null, null, null',
+    /* input */ 'null, null, null, null, null, #2a2a3a, null, 100%, null, 0.5rem, var(--border-radius), null, null, null, 1px solid #444, var(--text-primary), 0.9rem, null, null, null, null, null, null, null',
+    /* textarea */ 'null, null, null, null, null, #2a2a3a, null, 100%, null, 0.5rem, var(--border-radius), null, null, null, 1px solid #444, var(--text-primary), 0.9rem, null, null, null, null, null, null, null',
+    /* button-group */ 'null, null, flex, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, row, 0.5rem, null, null',
+    /* btn */ 'null, null, null, null, null, var(--bg-panel), null, null, null, 0.5rem 1rem, var(--border-radius), null, null, null, 1px solid #444, var(--text-primary), 0.9rem, pointer, null, null, null, null, background 0.2s, null',
+    /* btn-add */ 'null, null, null, null, null, var(--accent-green), null, null, null, 0.5rem 1rem, var(--border-radius), null, null, null, none, #fff, 0.9rem, pointer, null, null, null, null, background 0.2s, null',
+    /* btn-save */ 'null, null, null, null, null, var(--accent-blue), null, null, null, 0.5rem 1rem, var(--border-radius), null, null, null, none, #fff, 0.9rem, pointer, null, null, null, null, background 0.2s, null',
+    /* btn-delete */ 'null, null, null, null, null, var(--accent-red), null, null, null, 0.5rem 1rem, var(--border-radius), null, null, null, none, #fff, 0.9rem, pointer, null, null, null, null, background 0.2s, null'
+];
+</xaiArtifact>
+
+---
+
+### 8. Icons (iconsStyles.ts)
+
+<xaiArtifact artifact_id="4fc9f6bb-e9f6-40cd-a602-9bce16df4920" artifact_version_id="722f4176-a545-451c-b8bc-f264d2b895f1" title="iconsStyles.ts" contentType="text/javascript">
+const styles = `
+    position; inset; display; align-items; justify-content;
+    background-color; z-index;
+    width; max-width; padding;
+    border-radius; box-shadow;
+    top; right;
+    border; color; font-size; cursor;
+    margin-bottom; font-weight;
+    flex-direction; gap; transition;
+    border-left;
+`;
+
+const cssNames = [
+    'icon-sm', 'icon-md', 'icon-lg', 'pip-base', 'pip-strong', 'pip-weak', 'pip-empty'
+];
+
+const cssValues = [
+    /* icon-sm */ 'null, null, inline-block, null, null, null, null, 0.75rem, null, null, null, null, null, null, null, var(--text-muted), 0.75rem, null, null, null, null, null, null, null',
+    /* icon-md */ 'null, null, inline-block, null, null, null, null, 1rem, null, null, null, null, null, null, null, var(--text-muted), 1rem, null, null, null, null, null, null, null',
+    /* icon-lg */ 'null, null, inline-block, null, null, null, null, 1.25rem, null, null, null, null, null, null, null, var(--text-muted), 1.25rem, null, null, null, null, null, null, null',
+    /* pip-base */ 'null, null, inline-block, null, null, null, null, 0.5rem, null, null, 50%, null, null, null, null, null, null, null, null, null, null, null, null, null',
+    /* pip-strong */ 'null, null, null, null, null, var(--accent-blue), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null',
+    /* pip-weak */ 'null, null, null, null, null, var(--accent-red), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null',
+    /* pip-empty */ 'null, null, null, null, null, var(--text-muted), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null'
+];
+</xaiArtifact>
+
+---
+
+### 9. Master Cards Table (masterCardsTableStyles.ts)
+
+<xaiArtifact artifact_id="e53d4d56-279d-4f47-a136-e6575694e036" artifact_version_id="78b71182-3001-4215-920d-f22c70fc24c4" title="masterCardsTableStyles.ts" contentType="text/javascript">
+const styles = `
+    position; inset; display; align-items; justify-content;
+    background-color; z-index;
+    width; max-width; padding;
+    border-radius; box-shadow;
+    top; right;
+    border; color; font-size; cursor;
+    margin-bottom; font-weight;
+    flex-direction; gap; transition;
+    border-left;
+`;
+
+const cssNames = [
+    'container', 'filter-add-container', 'filter-container', 'filter-label', 'filter-select',
+    'add-btn', 'adding-container', 'adding-header', 'accordion-group', 'accordion-item',
+    'accordion-header', 'accordion-title', 'chevron', 'chevron-open', 'accordion-content',
+    'no-results', 'table-container', 'table', 'thead', 'th', 'td', 'tr', 'interactive-row',
+    'tr-editing', 'td-id', 'td-desc', 'td-type', 'th-actions', 'td-actions', 'input',
+    'select', 'wild-badge', 'wild-yes', 'wild-no', 'toggle-label', 'toggle-checkbox',
+    'toggle-switch', 'action-container', 'action-btn-edit', 'action-btn-save',
+    'action-btn-cancel', 'action-btn-delete'
+];
+
+const cssValues = [
+    /* container */ 'null, null, flex, null, null, var(--bg-panel), null, 100%, null, 1rem, var(--border-radius), var(--shadow-elevate), null, null, 1px solid #444, null, null, null, 0.5rem, null, column, 1rem, null, null',
+    /* filter-add-container */ 'null, null, flex, center, space-between, null, null, null, null, 0.5rem, null, null, null, null, null, null, null, null, 0.5rem, null, row, 0.5rem, null, null',
+    /* filter-container */ 'null, null, flex, center, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, row, 0.5rem, null, null',
+    /* filter-label */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-primary), 0.9rem, null, 0.25rem, 500, null, null, null, null',
+    /* filter-select */ 'null, null, null, null, null, #2a2a3a, null, null, null, 0.5rem, var(--border-radius), null, null, null, 1px solid #444, var(--text-primary), 0.9rem, null, null, null, null, null, null, null',
+    /* add-btn */ 'null, null, null, null, null, var(--accent-green), null, null, null, 0.5rem 1rem, var(--border-radius), null, null, null, none, #fff, 0.9rem, pointer, null, null, null, null, background 0.2s, null',
+    /* adding-container */ 'null, null, flex, null, null, null, null, 100%, null, 0.5rem, var(--border-radius), null, null, null, 1px solid #444, null, null, null, 0.5rem, null, column, 0.5rem, null, null',
+    /* adding-header */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-primary), 1rem, null, null, 600, null, null, null, null',
+    /* accordion-group */ 'null, null, flex, null, null, null, null, 100%, null, null, null, null, null, null, null, null, null, null, null, null, column, 0.5rem, null, null',
+    /* accordion-item */ 'null, null, null, null, null, var(--bg-panel), null, null, null, 0.5rem, var(--border-radius), var(--shadow-elevate), null, null, 1px solid #444, null, null, null, 0.5rem, null, null, null, null, null',
+    /* accordion-header */ 'null, null, flex, center, space-between, var(--bg-panel), null, null, null, 0.75rem, null, null, null, null, 1px solid #444, var(--text-primary), 1rem, pointer, null, 500, null, null, null, null',
+    /* accordion-title */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-primary), 1rem, null, null, 600, null, null, null, null',
+    /* chevron */ 'null, null, null, center, null, null, null, null, null, null, null, null, null, null, null, var(--text-muted), 1rem, null, null, null, null, null, transform 0.2s, null',
+    /* chevron-open */ 'null, null, null, center, null, null, null, null, null, null, null, null, null, null, null, var(--text-primary), null, null, null, null, null, null, transform: rotate(90deg), null',
+    /* accordion-content */ 'null, null, block, null, null, null, null, null, null, 0.5rem, null, null, null, null, null, null, null, null, 0.5rem, null, null, null, max-height 0.3s, null',
+    /* no-results */ 'null, null, null, center, center, null, null, null, null, 1rem, null, null, null, null, null, var(--text-muted), 0.9rem, null, null, null, null, null, null, null',
+    /* table-container */ 'null, null, block, null, null, null, null, 100%, null, 0.5rem, null, null, null, null, null, null, null, null, null, null, null, null, null, null',
+    /* table */ 'null, null, table, null, null, var(--bg-panel), null, 100%, null, null, null, null, null, null, 1px solid #444, var(--text-primary), null, null, null, null, null, null, null, null',
+    /* thead */ 'null, null, null, null, null, var(--bg-panel), null, null, null, null, null, null, null, null, null, var(--text-primary), 0.9rem, null, null, 600, null, null, null, null',
+    /* th */ 'null, null, null, null, null, null, null, null, null, 0.5rem, null, null, null, null, 1px solid #444, var(--text-primary), 0.9rem, null, null, 600, null, null, null, null',
+    /* td */ 'null, null, null, null, null, null, null, null, null, 0.5rem, null, null, null, null, 1px solid #444, var(--text-primary), 0.9rem, null, null, null, null, null, null, null',
+    /* tr */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, background 0.2s, null',
+    /* interactive-row */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, pointer, null, null, null, null, background 0.2s, null',
+    /* tr-editing */ 'null, null, null, null, null, rgba(255,255,255,0.05), null, null, null, null, null, null, null, null, 1px solid var(--accent-blue), null, null, null, null, null, null, null, null, null',
+    /* td-id */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-muted), 0.9rem, null, null, null, null, null, null, null',
+    /* td-desc */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-primary), 0.9rem, null, null, null, null, null, null, null',
+    /* td-type */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-primary), 0.9rem, null, null, null, null, null, null, null',
+    /* th-actions */ 'null, null, null, center, center, null, null, null, null, 0.5rem, null, null, null, null, 1px solid #444, var(--text-primary), 0.9rem, null, null, null, null, null, null, null',
+    /* td-actions */ 'null, null, flex, center, center, null, null, null, null, 0.5rem, null, null, null, null, 1px solid #444, null, null, null, null, null, row, 0.5rem, null, null',
+    /* input */ 'null, null, null, null, null, #2a2a3a, null, null, null, 0.5rem, var(--border-radius), null, null, null, 1px solid #444, var(--text-primary), 0.9rem, null, null, null, null, null, null, null',
+    /* select */ 'null, null, null, null, null, #2a2a3a, null, null, null, 0.5rem, var(--border-radius), null, null, null, 1px solid #444, var(--text-primary), 0.9rem, null, null, null, null, null, null, null',
+    /* wild-badge */ 'null, null, inline-block, null, null, null, null, null, null, 0.25rem 0.5rem, var(--border-radius), null, null, null, null, #fff, 0.85rem, null, null, null, null, null, null, null',
+    /* wild-yes */ 'null, null, null, null, null, var(--accent-green), null, null, null, null, null, null, null, null, null, #fff, null, null, null, null, null, null, null, null',
+    /* wild-no */ 'null, null, null, null, null, var(--accent-red), null, null, null, null, null, null, null, null, null, #fff, null, null, null, null, null, null, null, null',
+    /* toggle-label */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, var(--text-primary), 0.9rem, null, null, null, null, null, null, null',
+    /* toggle-checkbox */ 'null, null, none, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null',
+    /* toggle-switch */ 'null, null, inline-block, null, null, var(--bg-panel), null, 2rem, null, 0.25rem, var(--border-radius), null, null, null, 1px solid #444, null, null, pointer, null, null, null, null, background 0.2s, null',
+    /* action-container */ 'null, null, flex, center, center, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, row, 0.5rem, null, null',
+    /* action-btn-edit */ 'null, null, null, null, null, var(--bg-panel), null, null, null, 0.5rem, var(--border-radius), null, null, null, 1px solid #444, var(--text-primary), 0.85rem, pointer, null, null, null, null, background 0.2s, null',
+    /* action-btn-save */ 'null, null, null, null, null, var(--accent-blue), null, null, null, 0.5rem, var(--border-radius), null, null, null, none, #fff, 0.85rem, pointer, null, null, null, null, background 0.2s, null',
+    /* action-btn-cancel */ 'null, null, null, null, null, var(--bg-panel), null, null, null, 0.5rem, var(--border-radius), null, null, null, 1px solid #444, var(--text-muted), 0.85rem, pointer, null, null, null, null, background 0.2s, null',
+    /* action-btn-delete */ 'null, null, null, null, null, var(--accent-red), null, null, null, 0.5rem, var(--border-radius), null, null, null, none, #fff, 0.85rem, pointer, null, null, null, null, background 0.2s, null'
+];
+</xaiArtifact>
+
+---
+
+### 10. Players Table (playersTableStyles.ts)
+
+<xaiArtifact artifact_id="86f0684c-5158-422e-a6a0-3920a54a5453" artifact_version_id="965c00ee-33fc-496f-8b4b-f89332d3921f" title="playersTableStyles.ts" contentType="text/javascript">
+const styles = `
+    position; inset; display; align-items; justify-content;
+    background-color; z-index;
+    width; max-width; padding;
+    border-radius; box-shadow;
+    top; right;
+    border; color; font-size; cursor;
+    margin-bottom; font-weight;
+    flex-direction; gap; transition;
+    border-left;
+`;
+
+const cssNames = [
+    'table-container', 'table', 'thead', 'th', 'td', 'tr', 'interactive-row',
+    'tr-editing', 'td-id', 'add-btn-cell', 'add-btn', 'td-actions', 'edit-input',
+    'action-btn-container', 'action-btn-edit', 'action-btn-save', 'action-btn-cancel',
+    'action-btn-delete'
+];
+
+const cssValues = [
+    /* table-container */ 'null, null, block, null, null, null, null, 100%, null, 0.5rem, null, null, null, null, null, null, null, null, null, null, null, null, null, null',
+    /* table */ 'null, null, table, null, null, var(--bg-panel), null, 100%, null, null, null, null, null, null, 1px solid #444, var(--text-primary), null, null, null, null, null, null, null, null',
+    /* thead */ 'null, null, null, null, null, var(--bg-panel), null, null, null, null, null, null, null, null, null, var(--text-primary), 0.9rem, null, null, 600, null, null, null, null',
+    /* th */ 'null, null, null, null, null, null, null, null, null, 0.5rem, null, null, null, null, 1px solid #444, var(--text-primary), 0.9rem, null, null, 600, null, null, null, null',
+    /* td */ 'null, null, null, null, null, null, null, null, null, 0.5rem, null, null, null, null, 1px solid #444, var(--text-primary), 0.9rem, null, null, null, null, null, null, null',
+    /* tr */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, background 0.2s, null',
+    /* interactive-row */ 'null, null, null, null, null, null, null, null, null, null, null, null, null, null
